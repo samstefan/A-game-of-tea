@@ -6,7 +6,7 @@ This repo contains the website and API for 'A Game of Tea'
 
 - node.js `node.js >= 0.8.0`
 - gulp.js `^3.8.0`
-- A pusher account
+- [A pusher account](https://pusher.com)
 
 ### Set-up
 
