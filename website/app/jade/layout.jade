@@ -1,0 +1,55 @@
+doctype html
+html
+  head
+
+    //- Meta Tags
+    meta(charset="utf-8")
+    meta(http-equiv="X-UA-Compatible",content="IE=edge,chrome=1")
+    meta(name="viewport",content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0")
+
+    //- Search Engine Stuff
+    meta(name="description",content="")
+    meta(name="author",content="")
+    meta(name="robots",content="all")
+
+    title= title
+
+    //- Favicon
+    link(rel="shortcut icon",href="/images/favicon.png")
+
+    //- Style sheets
+    link(rel='stylesheet', href='./main.css')
+
+    //- Typekit async
+    script.
+      (function() {
+        var config = {
+          kitId: 'aph6vni'
+        }
+        var d = false
+        var tk = document.createElement('script')
+        tk.src = '//use.typekit.net/' + config.kitId + '.js'
+        tk.type = 'text/javascript'
+        tk.async = 'true'
+        tk.onload = tk.onreadystatechange = function() {
+          var rs = this.readyState
+          if (d || rs && rs != 'complete' && rs != 'loaded') return
+          d = true
+          try { Typekit.load(config); } catch (e) {}
+        }
+        var s = document.getElementsByTagName('script')[0]
+        s.parentNode.insertBefore(tk, s)
+      })()
+
+    body
+
+      include components/header
+
+      block content
+
+      include components/footer
+
+    block javascript
+
+    script(src="/js/plugins.js")
+    script(defer, src="/js/app.js")
