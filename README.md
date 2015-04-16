@@ -13,7 +13,7 @@ This repo contains the website and API for 'A Game of Tea'
 First you need to set up the property files for the website and API. Copy the example file and fill out as appropriate:
 ```
 $ cp example-properties.js ./api/properties.js
-$ cp example-global-properties.js global-properties.js
+$ cp example-global-properties.json global-properties.json
 ````
 
 Install the API dependences:
