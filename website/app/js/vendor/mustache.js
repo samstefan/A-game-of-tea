@@ -1,1 +1,601 @@
-;(function(e,t){if(typeof exports==="object"&&exports){t(exports)}else{var n={};t(n);if(typeof define==="function"&&define.amd){define(n)}else{e.Mustache=n}}})(this,function(e){function n(e,n){return t.call(e,n)}function i(e){return!n(r,e)}function u(e){return typeof e==="function"}function a(e){return e.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g,"\\$&")}function l(e){return String(e).replace(/[&<>"'\/]/g,function(e){return f[e]})}function c(e){if(!o(e)||e.length!==2){throw new Error("Invalid tags: "+e)}return[new RegExp(a(e[0])+"\\s*"),new RegExp("\\s*"+a(e[1]))]}function g(t,n){function E(){if(l&&!g){while(f.length){delete u[f.pop()]}}else{f=[]}l=false;g=false}n=n||e.tags;t=t||"";if(typeof n==="string"){n=n.split(p)}var r=c(n);var s=new w(t);var o=[];var u=[];var f=[];var l=false;var g=false;var S,x,T,N,C,k;while(!s.eos()){S=s.pos;T=s.scanUntil(r[0]);if(T){for(var L=0,A=T.length;L<A;++L){N=T.charAt(L);if(i(N)){f.push(u.length)}else{g=true}u.push(["text",N,S,S+1]);S+=1;if(N==="\n"){E()}}}if(!s.scan(r[0]))break;l=true;x=s.scan(m)||"name";s.scan(h);if(x==="="){T=s.scanUntil(d);s.scan(d);s.scanUntil(r[1])}else if(x==="{"){T=s.scanUntil(new RegExp("\\s*"+a("}"+n[1])));s.scan(v);s.scanUntil(r[1]);x="&"}else{T=s.scanUntil(r[1])}if(!s.scan(r[1])){throw new Error("Unclosed tag at "+s.pos)}C=[x,T,S,s.pos];u.push(C);if(x==="#"||x==="^"){o.push(C)}else if(x==="/"){k=o.pop();if(!k){throw new Error('Unopened section "'+T+'" at '+S)}if(k[1]!==T){throw new Error('Unclosed section "'+k[1]+'" at '+S)}}else if(x==="name"||x==="{"||x==="&"){g=true}else if(x==="="){r=c(n=T.split(p))}}k=o.pop();if(k){throw new Error('Unclosed section "'+k[1]+'" at '+s.pos)}return b(y(u))}function y(e){var t=[];var n,r;for(var i=0,s=e.length;i<s;++i){n=e[i];if(n){if(n[0]==="text"&&r&&r[0]==="text"){r[1]+=n[1];r[3]=n[3]}else{t.push(n);r=n}}}return t}function b(e){var t=[];var n=t;var r=[];var i,s;for(var o=0,u=e.length;o<u;++o){i=e[o];switch(i[0]){case"#":case"^":n.push(i);r.push(i);n=i[4]=[];break;case"/":s=r.pop();s[5]=i[2];n=r.length>0?r[r.length-1][4]:t;break;default:n.push(i)}}return t}function w(e){this.string=e;this.tail=e;this.pos=0}function E(e,t){this.view=e==null?{}:e;this.cache={".":this.view};this.parent=t}function S(){this.cache={}}var t=RegExp.prototype.test;var r=/\S/;var s=Object.prototype.toString;var o=Array.isArray||function(e){return s.call(e)==="[object Array]"};var f={"&":"&","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;","/":"&#x2F;"};var h=/\s*/;var p=/\s+/;var d=/\s*=/;var v=/\s*\}/;var m=/#|\^|\/|>|\{|&|=|!/;w.prototype.eos=function(){return this.tail===""};w.prototype.scan=function(e){var t=this.tail.match(e);if(t&&t.index===0){var n=t[0];this.tail=this.tail.substring(n.length);this.pos+=n.length;return n}return""};w.prototype.scanUntil=function(e){var t=this.tail.search(e),n;switch(t){case-1:n=this.tail;this.tail="";break;case 0:n="";break;default:n=this.tail.substring(0,t);this.tail=this.tail.substring(t)}this.pos+=n.length;return n};E.prototype.push=function(e){return new E(e,this)};E.prototype.lookup=function(e){var t;if(e in this.cache){t=this.cache[e]}else{var n=this;while(n){if(e.indexOf(".")>0){t=n.view;var r=e.split("."),i=0;while(t!=null&&i<r.length){t=t[r[i++]]}}else{t=n.view[e]}if(t!=null)break;n=n.parent}this.cache[e]=t}if(u(t)){t=t.call(this.view)}return t};S.prototype.clearCache=function(){this.cache={}};S.prototype.parse=function(e,t){var n=this.cache;var r=n[e];if(r==null){r=n[e]=g(e,t)}return r};S.prototype.render=function(e,t,n){var r=this.parse(e);var i=t instanceof E?t:new E(t);return this.renderTokens(r,i,n,e)};S.prototype.renderTokens=function(t,n,r,i){function f(e){return a.render(e,n,r)}var s="";var a=this;var l,c;for(var h=0,p=t.length;h<p;++h){l=t[h];switch(l[0]){case"#":c=n.lookup(l[1]);if(!c)continue;if(o(c)){for(var d=0,v=c.length;d<v;++d){s+=this.renderTokens(l[4],n.push(c[d]),r,i)}}else if(typeof c==="object"||typeof c==="string"){s+=this.renderTokens(l[4],n.push(c),r,i)}else if(u(c)){if(typeof i!=="string"){throw new Error("Cannot use higher-order sections without the original template")}c=c.call(n.view,i.slice(l[3],l[5]),f);if(c!=null)s+=c}else{s+=this.renderTokens(l[4],n,r,i)}break;case"^":c=n.lookup(l[1]);if(!c||o(c)&&c.length===0){s+=this.renderTokens(l[4],n,r,i)}break;case">":if(!r)continue;c=u(r)?r(l[1]):r[l[1]];if(c!=null)s+=this.renderTokens(this.parse(c),n,r,c);break;case"&":c=n.lookup(l[1]);if(c!=null)s+=c;break;case"name":c=n.lookup(l[1]);if(c!=null)s+=e.escape(c);break;case"text":s+=l[1];break}}return s};e.name="mustache.js";e.version="0.8.1";e.tags=["{{","}}"];var x=new S;e.clearCache=function(){return x.clearCache()};e.parse=function(e,t){return x.parse(e,t)};e.render=function(e,t,n){return x.render(e,t,n)};e.to_html=function(t,n,r,i){var s=e.render(t,n,r);if(u(i)){i(s)}else{return s}};e.escape=l;e.Scanner=w;e.Context=E;e.Writer=S})
+/*!
+ * mustache.js - Logic-less {{mustache}} templates with JavaScript
+ * http://github.com/janl/mustache.js
+ */
+
+/*global define: false*/
+
+(function (global, factory) {
+  if (typeof exports === "object" && exports) {
+    factory(exports); // CommonJS
+  } else if (typeof define === "function" && define.amd) {
+    define(['exports'], factory); // AMD
+  } else {
+    factory(global.Mustache = {}); // <script>
+  }
+}(this, function (mustache) {
+
+  var Object_toString = Object.prototype.toString;
+  var isArray = Array.isArray || function (object) {
+    return Object_toString.call(object) === '[object Array]';
+  };
+
+  function isFunction(object) {
+    return typeof object === 'function';
+  }
+
+  function escapeRegExp(string) {
+    return string.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
+  }
+
+  // Workaround for https://issues.apache.org/jira/browse/COUCHDB-577
+  // See https://github.com/janl/mustache.js/issues/189
+  var RegExp_test = RegExp.prototype.test;
+  function testRegExp(re, string) {
+    return RegExp_test.call(re, string);
+  }
+
+  var nonSpaceRe = /\S/;
+  function isWhitespace(string) {
+    return !testRegExp(nonSpaceRe, string);
+  }
+
+  var entityMap = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': '&quot;',
+    "'": '&#39;',
+    "/": '&#x2F;'
+  };
+
+  function escapeHtml(string) {
+    return String(string).replace(/[&<>"'\/]/g, function (s) {
+      return entityMap[s];
+    });
+  }
+
+  var whiteRe = /\s*/;
+  var spaceRe = /\s+/;
+  var equalsRe = /\s*=/;
+  var curlyRe = /\s*\}/;
+  var tagRe = /#|\^|\/|>|\{|&|=|!/;
+
+  /**
+   * Breaks up the given `template` string into a tree of tokens. If the `tags`
+   * argument is given here it must be an array with two string values: the
+   * opening and closing tags used in the template (e.g. [ "<%", "%>" ]). Of
+   * course, the default is to use mustaches (i.e. mustache.tags).
+   *
+   * A token is an array with at least 4 elements. The first element is the
+   * mustache symbol that was used inside the tag, e.g. "#" or "&". If the tag
+   * did not contain a symbol (i.e. {{myValue}}) this element is "name". For
+   * all text that appears outside a symbol this element is "text".
+   *
+   * The second element of a token is its "value". For mustache tags this is
+   * whatever else was inside the tag besides the opening symbol. For text tokens
+   * this is the text itself.
+   *
+   * The third and fourth elements of the token are the start and end indices,
+   * respectively, of the token in the original template.
+   *
+   * Tokens that are the root node of a subtree contain two more elements: 1) an
+   * array of tokens in the subtree and 2) the index in the original template at
+   * which the closing tag for that section begins.
+   */
+  function parseTemplate(template, tags) {
+    if (!template)
+      return [];
+
+    var sections = [];     // Stack to hold section tokens
+    var tokens = [];       // Buffer to hold the tokens
+    var spaces = [];       // Indices of whitespace tokens on the current line
+    var hasTag = false;    // Is there a {{tag}} on the current line?
+    var nonSpace = false;  // Is there a non-space char on the current line?
+
+    // Strips all whitespace tokens array for the current line
+    // if there was a {{#tag}} on it and otherwise only space.
+    function stripSpace() {
+      if (hasTag && !nonSpace) {
+        while (spaces.length)
+          delete tokens[spaces.pop()];
+      } else {
+        spaces = [];
+      }
+
+      hasTag = false;
+      nonSpace = false;
+    }
+
+    var openingTagRe, closingTagRe, closingCurlyRe;
+    function compileTags(tags) {
+      if (typeof tags === 'string')
+        tags = tags.split(spaceRe, 2);
+
+      if (!isArray(tags) || tags.length !== 2)
+        throw new Error('Invalid tags: ' + tags);
+
+      openingTagRe = new RegExp(escapeRegExp(tags[0]) + '\\s*');
+      closingTagRe = new RegExp('\\s*' + escapeRegExp(tags[1]));
+      closingCurlyRe = new RegExp('\\s*' + escapeRegExp('}' + tags[1]));
+    }
+
+    compileTags(tags || mustache.tags);
+
+    var scanner = new Scanner(template);
+
+    var start, type, value, chr, token, openSection;
+    while (!scanner.eos()) {
+      start = scanner.pos;
+
+      // Match any text between tags.
+      value = scanner.scanUntil(openingTagRe);
+
+      if (value) {
+        for (var i = 0, valueLength = value.length; i < valueLength; ++i) {
+          chr = value.charAt(i);
+
+          if (isWhitespace(chr)) {
+            spaces.push(tokens.length);
+          } else {
+            nonSpace = true;
+          }
+
+          tokens.push([ 'text', chr, start, start + 1 ]);
+          start += 1;
+
+          // Check for whitespace on the current line.
+          if (chr === '\n')
+            stripSpace();
+        }
+      }
+
+      // Match the opening tag.
+      if (!scanner.scan(openingTagRe))
+        break;
+
+      hasTag = true;
+
+      // Get the tag type.
+      type = scanner.scan(tagRe) || 'name';
+      scanner.scan(whiteRe);
+
+      // Get the tag value.
+      if (type === '=') {
+        value = scanner.scanUntil(equalsRe);
+        scanner.scan(equalsRe);
+        scanner.scanUntil(closingTagRe);
+      } else if (type === '{') {
+        value = scanner.scanUntil(closingCurlyRe);
+        scanner.scan(curlyRe);
+        scanner.scanUntil(closingTagRe);
+        type = '&';
+      } else {
+        value = scanner.scanUntil(closingTagRe);
+      }
+
+      // Match the closing tag.
+      if (!scanner.scan(closingTagRe))
+        throw new Error('Unclosed tag at ' + scanner.pos);
+
+      token = [ type, value, start, scanner.pos ];
+      tokens.push(token);
+
+      if (type === '#' || type === '^') {
+        sections.push(token);
+      } else if (type === '/') {
+        // Check section nesting.
+        openSection = sections.pop();
+
+        if (!openSection)
+          throw new Error('Unopened section "' + value + '" at ' + start);
+
+        if (openSection[1] !== value)
+          throw new Error('Unclosed section "' + openSection[1] + '" at ' + start);
+      } else if (type === 'name' || type === '{' || type === '&') {
+        nonSpace = true;
+      } else if (type === '=') {
+        // Set the tags for the next time around.
+        compileTags(value);
+      }
+    }
+
+    // Make sure there are no open sections when we're done.
+    openSection = sections.pop();
+
+    if (openSection)
+      throw new Error('Unclosed section "' + openSection[1] + '" at ' + scanner.pos);
+
+    return nestTokens(squashTokens(tokens));
+  }
+
+  /**
+   * Combines the values of consecutive text tokens in the given `tokens` array
+   * to a single token.
+   */
+  function squashTokens(tokens) {
+    var squashedTokens = [];
+
+    var token, lastToken;
+    for (var i = 0, numTokens = tokens.length; i < numTokens; ++i) {
+      token = tokens[i];
+
+      if (token) {
+        if (token[0] === 'text' && lastToken && lastToken[0] === 'text') {
+          lastToken[1] += token[1];
+          lastToken[3] = token[3];
+        } else {
+          squashedTokens.push(token);
+          lastToken = token;
+        }
+      }
+    }
+
+    return squashedTokens;
+  }
+
+  /**
+   * Forms the given array of `tokens` into a nested tree structure where
+   * tokens that represent a section have two additional items: 1) an array of
+   * all tokens that appear in that section and 2) the index in the original
+   * template that represents the end of that section.
+   */
+  function nestTokens(tokens) {
+    var nestedTokens = [];
+    var collector = nestedTokens;
+    var sections = [];
+
+    var token, section;
+    for (var i = 0, numTokens = tokens.length; i < numTokens; ++i) {
+      token = tokens[i];
+
+      switch (token[0]) {
+      case '#':
+      case '^':
+        collector.push(token);
+        sections.push(token);
+        collector = token[4] = [];
+        break;
+      case '/':
+        section = sections.pop();
+        section[5] = token[2];
+        collector = sections.length > 0 ? sections[sections.length - 1][4] : nestedTokens;
+        break;
+      default:
+        collector.push(token);
+      }
+    }
+
+    return nestedTokens;
+  }
+
+  /**
+   * A simple string scanner that is used by the template parser to find
+   * tokens in template strings.
+   */
+  function Scanner(string) {
+    this.string = string;
+    this.tail = string;
+    this.pos = 0;
+  }
+
+  /**
+   * Returns `true` if the tail is empty (end of string).
+   */
+  Scanner.prototype.eos = function () {
+    return this.tail === "";
+  };
+
+  /**
+   * Tries to match the given regular expression at the current position.
+   * Returns the matched text if it can match, the empty string otherwise.
+   */
+  Scanner.prototype.scan = function (re) {
+    var match = this.tail.match(re);
+
+    if (!match || match.index !== 0)
+      return '';
+
+    var string = match[0];
+
+    this.tail = this.tail.substring(string.length);
+    this.pos += string.length;
+
+    return string;
+  };
+
+  /**
+   * Skips all text until the given regular expression can be matched. Returns
+   * the skipped string, which is the entire tail if no match can be made.
+   */
+  Scanner.prototype.scanUntil = function (re) {
+    var index = this.tail.search(re), match;
+
+    switch (index) {
+    case -1:
+      match = this.tail;
+      this.tail = "";
+      break;
+    case 0:
+      match = "";
+      break;
+    default:
+      match = this.tail.substring(0, index);
+      this.tail = this.tail.substring(index);
+    }
+
+    this.pos += match.length;
+
+    return match;
+  };
+
+  /**
+   * Represents a rendering context by wrapping a view object and
+   * maintaining a reference to the parent context.
+   */
+  function Context(view, parentContext) {
+    this.view = view;
+    this.cache = { '.': this.view };
+    this.parent = parentContext;
+  }
+
+  /**
+   * Creates a new context using the given view with this context
+   * as the parent.
+   */
+  Context.prototype.push = function (view) {
+    return new Context(view, this);
+  };
+
+  /**
+   * Returns the value of the given name in this context, traversing
+   * up the context hierarchy if the value is absent in this context's view.
+   */
+  Context.prototype.lookup = function (name) {
+    var cache = this.cache;
+
+    var value;
+    if (name in cache) {
+      value = cache[name];
+    } else {
+      var context = this, names, index, lookupHit = false;
+
+      while (context) {
+        if (name.indexOf('.') > 0) {
+          value = context.view;
+          names = name.split('.');
+          index = 0;
+
+          /**
+           * Using the dot notion path in `name`, we descend through the
+           * nested objects.
+           *
+           * To be certain that the lookup has been successful, we have to
+           * check if the last object in the path actually has the property
+           * we are looking for. We store the result in `lookupHit`.
+           *
+           * This is specially necessary for when the value has been set to
+           * `undefined` and we want to avoid looking up parent contexts.
+           **/
+          while (value != null && index < names.length) {
+            if (index === names.length - 1 && value != null)
+              lookupHit = (typeof value === 'object') &&
+                value.hasOwnProperty(names[index]);
+            value = value[names[index++]];
+          }
+        } else if (context.view != null && typeof context.view === 'object') {
+          value = context.view[name];
+          lookupHit = context.view.hasOwnProperty(name);
+        }
+
+        if (lookupHit)
+          break;
+
+        context = context.parent;
+      }
+
+      cache[name] = value;
+    }
+
+    if (isFunction(value))
+      value = value.call(this.view);
+
+    return value;
+  };
+
+  /**
+   * A Writer knows how to take a stream of tokens and render them to a
+   * string, given a context. It also maintains a cache of templates to
+   * avoid the need to parse the same template twice.
+   */
+  function Writer() {
+    this.cache = {};
+  }
+
+  /**
+   * Clears all cached templates in this writer.
+   */
+  Writer.prototype.clearCache = function () {
+    this.cache = {};
+  };
+
+  /**
+   * Parses and caches the given `template` and returns the array of tokens
+   * that is generated from the parse.
+   */
+  Writer.prototype.parse = function (template, tags) {
+    var cache = this.cache;
+    var tokens = cache[template];
+
+    if (tokens == null)
+      tokens = cache[template] = parseTemplate(template, tags);
+
+    return tokens;
+  };
+
+  /**
+   * High-level method that is used to render the given `template` with
+   * the given `view`.
+   *
+   * The optional `partials` argument may be an object that contains the
+   * names and templates of partials that are used in the template. It may
+   * also be a function that is used to load partial templates on the fly
+   * that takes a single argument: the name of the partial.
+   */
+  Writer.prototype.render = function (template, view, partials) {
+    var tokens = this.parse(template);
+    var context = (view instanceof Context) ? view : new Context(view);
+    return this.renderTokens(tokens, context, partials, template);
+  };
+
+  /**
+   * Low-level method that renders the given array of `tokens` using
+   * the given `context` and `partials`.
+   *
+   * Note: The `originalTemplate` is only ever used to extract the portion
+   * of the original template that was contained in a higher-order section.
+   * If the template doesn't use higher-order sections, this argument may
+   * be omitted.
+   */
+  Writer.prototype.renderTokens = function (tokens, context, partials, originalTemplate) {
+    var buffer = '';
+
+    var token, symbol, value;
+    for (var i = 0, numTokens = tokens.length; i < numTokens; ++i) {
+      value = undefined;
+      token = tokens[i];
+      symbol = token[0];
+
+      if (symbol === '#') value = this._renderSection(token, context, partials, originalTemplate);
+      else if (symbol === '^') value = this._renderInverted(token, context, partials, originalTemplate);
+      else if (symbol === '>') value = this._renderPartial(token, context, partials, originalTemplate);
+      else if (symbol === '&') value = this._unescapedValue(token, context);
+      else if (symbol === 'name') value = this._escapedValue(token, context);
+      else if (symbol === 'text') value = this._rawValue(token);
+
+      if (value !== undefined)
+        buffer += value;
+    }
+
+    return buffer;
+  };
+
+  Writer.prototype._renderSection = function (token, context, partials, originalTemplate) {
+    var self = this;
+    var buffer = '';
+    var value = context.lookup(token[1]);
+
+    // This function is used to render an arbitrary template
+    // in the current context by higher-order sections.
+    function subRender(template) {
+      return self.render(template, context, partials);
+    }
+
+    if (!value) return;
+
+    if (isArray(value)) {
+      for (var j = 0, valueLength = value.length; j < valueLength; ++j) {
+        buffer += this.renderTokens(token[4], context.push(value[j]), partials, originalTemplate);
+      }
+    } else if (typeof value === 'object' || typeof value === 'string' || typeof value === 'number') {
+      buffer += this.renderTokens(token[4], context.push(value), partials, originalTemplate);
+    } else if (isFunction(value)) {
+      if (typeof originalTemplate !== 'string')
+        throw new Error('Cannot use higher-order sections without the original template');
+
+      // Extract the portion of the original template that the section contains.
+      value = value.call(context.view, originalTemplate.slice(token[3], token[5]), subRender);
+
+      if (value != null)
+        buffer += value;
+    } else {
+      buffer += this.renderTokens(token[4], context, partials, originalTemplate);
+    }
+    return buffer;
+  };
+
+  Writer.prototype._renderInverted = function(token, context, partials, originalTemplate) {
+    var value = context.lookup(token[1]);
+
+    // Use JavaScript's definition of falsy. Include empty arrays.
+    // See https://github.com/janl/mustache.js/issues/186
+    if (!value || (isArray(value) && value.length === 0))
+      return this.renderTokens(token[4], context, partials, originalTemplate);
+  };
+
+  Writer.prototype._renderPartial = function(token, context, partials) {
+    if (!partials) return;
+
+    var value = isFunction(partials) ? partials(token[1]) : partials[token[1]];
+    if (value != null)
+      return this.renderTokens(this.parse(value), context, partials, value);
+  };
+
+  Writer.prototype._unescapedValue = function(token, context) {
+    var value = context.lookup(token[1]);
+    if (value != null)
+      return value;
+  };
+
+  Writer.prototype._escapedValue = function(token, context) {
+    var value = context.lookup(token[1]);
+    if (value != null)
+      return mustache.escape(value);
+  };
+
+  Writer.prototype._rawValue = function(token) {
+    return token[1];
+  };
+
+  mustache.name = "mustache.js";
+  mustache.version = "2.0.0";
+  mustache.tags = [ "{{", "}}" ];
+
+  // All high-level mustache.* functions use this writer.
+  var defaultWriter = new Writer();
+
+  /**
+   * Clears all cached templates in the default writer.
+   */
+  mustache.clearCache = function () {
+    return defaultWriter.clearCache();
+  };
+
+  /**
+   * Parses and caches the given template in the default writer and returns the
+   * array of tokens it contains. Doing this ahead of time avoids the need to
+   * parse templates on the fly as they are rendered.
+   */
+  mustache.parse = function (template, tags) {
+    return defaultWriter.parse(template, tags);
+  };
+
+  /**
+   * Renders the `template` with the given `view` and `partials` using the
+   * default writer.
+   */
+  mustache.render = function (template, view, partials) {
+    return defaultWriter.render(template, view, partials);
+  };
+
+  // This is here for backwards compatibility with 0.4.x.
+  mustache.to_html = function (template, view, partials, send) {
+    var result = mustache.render(template, view, partials);
+
+    if (isFunction(send)) {
+      send(result);
+    } else {
+      return result;
+    }
+  };
+
+  // Export the escaping function so that the user may override it.
+  // See https://github.com/janl/mustache.js/issues/244
+  mustache.escape = escapeHtml;
+
+  // Export these mainly for testing, but also for advanced usage.
+  mustache.Scanner = Scanner;
+  mustache.Context = Context;
+  mustache.Writer = Writer;
+
+}));

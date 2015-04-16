@@ -18,6 +18,8 @@ pusher.bootstrap(function(pusher) {
     { logger: logger
     , properties: properties
     , pusher: pusher
+    , games: require('./lib/game')()
+    , users: require('./lib/user')()
     , session: properties.session
     }
 
@@ -28,6 +30,8 @@ pusher.bootstrap(function(pusher) {
 
   // Bootstrap routes
   require(__dirname + '/app/controllers/game')(app, options)
+  require(__dirname + '/app/controllers/user')(app, options)
+  require(__dirname + '/app/controllers/auth')(app, options)
 
   // Catch all routes
   app.get('*', function(req, res){

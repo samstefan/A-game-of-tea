@@ -10,7 +10,7 @@ module.exports = function() {
       }
     }
 
-    return new Pusher(app.config.globalProperties.pusher.applicationKey)
+    return new Pusher(app.config.globalProperties.pusher.key, app.config.globalProperties.pusher.settings)
   }
 
   return { initialize: initialize }

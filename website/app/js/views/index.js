@@ -3,12 +3,19 @@
  */
 
 var Stapes = require('./../vendor/stapes.min.js')
+  , _ = require('underscore')
   , Start = require('./start')
+  , Hud = require('./hud')
+  , NewGame = require('./new-game')
   , Views = Stapes.subclass({
 
-    constructor: function() {
+    constructor: function(app) {
       // Load views
-      this.views = { start: new Start() }
+      _.extend(this,
+        { start: new Start(app)
+        , hud: new Hud(app)
+        , newGame: new NewGame(app)
+        })
     }
 
   })

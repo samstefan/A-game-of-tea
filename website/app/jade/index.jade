@@ -3,5 +3,16 @@ extends layout
 block content
 
   div.content
+    div.content__hud
+    div.content__view
+
+  script(type="text/html").template__hud
+    div.hud__name User Name: {{userName}}
 
   script(type="text/html").template__start
+    div.start__title Enter a user name
+    input(type="text").start__name-input
+    a(href="#").start__submit Submit
+
+  script(type="text/html").template__new-game
+    a(href="#").new-game__new New game

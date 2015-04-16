@@ -15,7 +15,6 @@ var gulp = require('gulp')
       , vendor:
         [ './app/js/vendor/jquery-2.1.3.min.js'
         , './app/js/vendor/stapes.min.js'
-        , './app/js/vendor/mustache.js'
         , './app/js/vendor/pusher.js'
         ]
       }
@@ -43,7 +42,7 @@ gulp.task('jsApp', function () {
 gulp.task('jsVendor', function () {
   gulp.src(filePaths.javaScript.vendor)
     .pipe(concat('plugins.js'))
-    .pipe(uglify())
+    // .pipe(uglify())
     .pipe(gulp.dest(filePaths.output + 'js/'))
 })
 
